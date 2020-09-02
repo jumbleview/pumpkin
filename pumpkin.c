@@ -5,13 +5,13 @@
  *  Author: Jumbleview
  *
  *
- * Program controls two 10mm three-color LED on Attiny85 chip.
- * LED represents two eyes of Pumpkin Halloween Glitter
+ * Program controls two 10mm three-color common anode LEDs on Attiny85 chip. 
+ * LED represents two eyes of Pumpkin Halloween Glitter: so eyes changes its color 
  * Design uses five chip pins: 
- *    Three attached to LEDs cathodes (the same color cathode of each led to the same pi,n);
- *    Two pins used to control anodes:  each LED anode attached to the dedicated pin
- *    Program uses Adam Dunkels Protothreads library
+ *    Three attached to LEDs cathodes (the same color cathode of each led attached to the same pin);
+ *    Two pins used to control anodes:  each LED anode attached to the dedicated pin.
  *
+ *    Program uses Adam Dunkels Protothreads library
  */
 
 #include <avr/io.h>
@@ -33,13 +33,20 @@
 #define	GREEN_LED	DDB1
 #define	BLUE_LED	DDB2
 
-#define PURE_LIMIT 199
-#define MIXED_LIMIT 151
-#define DARK_LIMIT 97
+// It is the time (mls) which high voltage stays on one LED anode
+#define TAKT_TIME 2.5
+
+// Pure LED color (RGB) will stay ~ 1 second
+#define PURE_LIMIT 200
+
+// Mixed LED color (Cyan, Magenta, Yellow, WHite ) will stay ~ 0.75 second.
+#define MIXED_LIMIT 150
+
+// Dark LED  will stay for 100 takts (~ 0.5 second)
+#define DARK_LIMIT 100
+
 
 typedef enum {EYE_LEFT, EYE_RIGHT} EYE;
-
-EYE eye = EYE_LEFT;
  
 struct pt lpt; // protothread descriptor: left
 struct pt rpt; // protothread descriptor: right
@@ -94,54 +101,58 @@ void darkEye() {
 	pinHigh(BLUE_LED);
 }
 
+// doAndCountDown is used to involve particular function to light up LED(s) and in condition of PT_WAIT_UNTIL macro
+
+int16_t doAndCountDown( void (*f)(), int16_t *counter) {
+	(*f)();
+	--(*counter);
+	return *counter;	
+}
+
 // Protothread procedure for left eye
 int eyeLeft(struct pt* mlpt) {
 	static int16_t i=0;
-	PT_BEGIN(mlpt); 	//
+	PT_BEGIN(mlpt); 
+	// first step made by 'for' loop to invoke PT_YIELD to avoid warning  of unused PT_YELD_FLAG
 	for (i=0; i < PURE_LIMIT; i++) {
 		redEye();
 		PT_YIELD(mlpt);
 	}
-	for (i=0; i < PURE_LIMIT; i++) {
-		greenEye();
-		PT_YIELD(mlpt);
-	}
-	for (i=0; i < PURE_LIMIT; i++) {
-		blueEye();
-		PT_YIELD(mlpt);
-	}
-	for (i=0; i < MIXED_LIMIT; i++) {
-		whiteEye();
-		PT_YIELD(mlpt);
-	}
-	for (i=0; i < PURE_LIMIT; i++) {
-		redEye();
-		PT_YIELD(mlpt);
-	}
-	for (i=0; i < MIXED_LIMIT; i++) {
-		yellowEye();
-		PT_YIELD(mlpt);
-	}
-	for (i=0; i < MIXED_LIMIT; i++) {
-		cyanEye();
-		PT_YIELD(mlpt);
-	}
-	for (i=0; i < PURE_LIMIT; i++) {
-		greenEye();
-		PT_YIELD(mlpt);
-	}
-	for (i=0; i < MIXED_LIMIT; i++) {
-		magentaEye();
-		PT_YIELD(mlpt);
-	}
-	for (i=0; i < PURE_LIMIT; i++) {
-		greenEye();
-		PT_YIELD(mlpt);
-	}
-	for (i=0; i < DARK_LIMIT; i++) {
-		darkEye();
-		PT_YIELD(mlpt);
-	}
+	
+	i = PURE_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(redEye, &i) <= 0);
+
+	i = PURE_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(greenEye, &i) <= 0);
+
+	i = PURE_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(blueEye, &i) <= 0);
+
+	i = MIXED_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(whiteEye, &i) <= 0);
+
+	i = PURE_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(redEye, &i) <= 0);
+
+	i = MIXED_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(yellowEye, &i) <= 0);
+
+	i = MIXED_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(cyanEye, &i) <= 0);
+
+	i = PURE_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(greenEye, &i) <= 0);
+
+	i = MIXED_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(magentaEye, &i) <= 0);
+
+	i = PURE_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(greenEye, &i) <= 0);
+
+
+	i = DARK_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(darkEye, &i) <= 0);
+
 	PT_RESTART(mlpt);	//
 	PT_END(mlpt);
 }
@@ -149,53 +160,47 @@ int eyeLeft(struct pt* mlpt) {
 // Protothread procedure for right eye
 int eyeRight(struct pt* mlpt) {
 	static int16_t i=0;
-	PT_BEGIN(mlpt); 	
+	PT_BEGIN(mlpt);
+	
 	for (i=0; i < DARK_LIMIT; i++) {
 		darkEye();
 		PT_YIELD(mlpt);
 	}
-	for (i=0; i < PURE_LIMIT; i++) {
-		greenEye();
-		PT_YIELD(mlpt);
-	}
-	for (i=0; i < MIXED_LIMIT; i++) {
-		magentaEye();
-		PT_YIELD(mlpt);
-	}
-	for (i=0; i < PURE_LIMIT; i++) {
-		redEye();
-		PT_YIELD(mlpt);
-	}
-	for (i=0; i < MIXED_LIMIT; i++) {
-		yellowEye();
-		PT_YIELD(mlpt);
-	}
-	for (i=0; i < PURE_LIMIT; i++) {
-		blueEye();
-		PT_YIELD(mlpt);
-	}
-	for (i=0; i < MIXED_LIMIT; i++) {
-		whiteEye();
-		PT_YIELD(mlpt);
-	}
-	for (i=0; i < PURE_LIMIT; i++) {
-		greenEye();
-		PT_YIELD(mlpt);
-	}
-	for (i=0; i < PURE_LIMIT; i++) {
-		redEye();
-		PT_YIELD(mlpt);
-	}
-	for (i=0; i < MIXED_LIMIT; i++) {
-		cyanEye();
-		PT_YIELD(mlpt);
-	}
+	
+	i = PURE_LIMIT; 
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(greenEye, &i) <= 0);
+
+	i = MIXED_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(magentaEye, &i) <= 0);
+
+	i = PURE_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(redEye, &i) <= 0);
+
+	i = MIXED_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(yellowEye, &i) <= 0);
+
+	i = PURE_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(blueEye, &i) <= 0);
+
+	i = MIXED_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(whiteEye, &i) <= 0);
+
+	i = PURE_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(greenEye, &i) <= 0);
+
+	i = PURE_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(redEye, &i) <= 0);
+
+	i = MIXED_LIMIT;
+	PT_WAIT_UNTIL(mlpt, doAndCountDown(cyanEye, &i) <= 0);
+
 	PT_RESTART(mlpt);	
 	PT_END(mlpt);
 }
 
 // Function changeEye switches voltage between LEDs and call protothread functions to apply programmed color
 void changeEye() {
+	static EYE eye = EYE_LEFT;
 	pinHigh(RED_LED);
 	pinHigh(GREEN_LED);
 	pinHigh(BLUE_LED);
@@ -222,8 +227,8 @@ int main(void) {
 	setAllPinOut();
 	// main loop
 	while(1) {
-			_delay_ms(2.0);
-			changeEye();
+		_delay_ms(TAKT_TIME); 
+		changeEye();
 	}
 }
 
