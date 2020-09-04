@@ -51,6 +51,7 @@ typedef enum {EYE_LEFT, EYE_RIGHT} EYE;
 struct pt lpt; // protothread descriptor: left
 struct pt rpt; // protothread descriptor: right
 
+// Procedures below controls states of LED cathodes. 
 // Pure color procedures
 void greenEye() {
 	pinHigh(RED_LED);
@@ -101,59 +102,58 @@ void darkEye() {
 	pinHigh(BLUE_LED);
 }
 
-// doAndCountDown is used to involve particular function to light up LED(s) and in condition of PT_WAIT_UNTIL macro
-
-int16_t doAndCountDown( void (*f)(), int16_t *counter) {
+// Function 'doAndCountdown' invokes function (first argument) to light up LED(s). It returns value which macro PT_WAIT_UNTIL uses as left side condition.
+int16_t doAndCountdown( void (*f)(), int16_t *counter) {
 	(*f)();
 	--(*counter);
 	return *counter;	
 }
 
-// Protothread procedure for left eye
+// Protothread procedure for left eye. It defines consequent change of eye color and how long each color stays
 int eyeLeft(struct pt* mlpt) {
 	static int16_t i=0;
 	PT_BEGIN(mlpt); 
 	// first step made by 'for' loop to invoke PT_YIELD to avoid warning  of unused PT_YELD_FLAG
 	for (i=0; i < PURE_LIMIT; i++) {
-		redEye();
+		blueEye();
 		PT_YIELD(mlpt);
 	}
-	
+	// Other steps  use PT_WAIT_UNTIL macro providing the same functionality as 'for' loop above
 	i = PURE_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(redEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(redEye, &i) <= 0);
 
 	i = PURE_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(greenEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(greenEye, &i) <= 0);
 
 	i = PURE_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(blueEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(blueEye, &i) <= 0);
 
 	i = MIXED_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(whiteEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(whiteEye, &i) <= 0);
 
 	i = PURE_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(redEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(redEye, &i) <= 0);
 
 	i = MIXED_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(yellowEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(yellowEye, &i) <= 0);
 
 	i = MIXED_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(cyanEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(cyanEye, &i) <= 0);
 
 	i = PURE_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(greenEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(greenEye, &i) <= 0);
 
 	i = MIXED_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(magentaEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(magentaEye, &i) <= 0);
 
 	i = PURE_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(greenEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(greenEye, &i) <= 0);
 
 
 	i = DARK_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(darkEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(darkEye, &i) <= 0);
 
-	PT_RESTART(mlpt);	//
+	PT_RESTART(mlpt);	
 	PT_END(mlpt);
 }
 
@@ -168,38 +168,38 @@ int eyeRight(struct pt* mlpt) {
 	}
 	
 	i = PURE_LIMIT; 
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(greenEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(greenEye, &i) <= 0);
 
 	i = MIXED_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(magentaEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(magentaEye, &i) <= 0);
 
 	i = PURE_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(redEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(redEye, &i) <= 0);
 
 	i = MIXED_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(yellowEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(yellowEye, &i) <= 0);
 
 	i = PURE_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(blueEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(blueEye, &i) <= 0);
 
 	i = MIXED_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(whiteEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(whiteEye, &i) <= 0);
 
 	i = PURE_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(greenEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(greenEye, &i) <= 0);
 
 	i = PURE_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(redEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(redEye, &i) <= 0);
 
 	i = MIXED_LIMIT;
-	PT_WAIT_UNTIL(mlpt, doAndCountDown(cyanEye, &i) <= 0);
+	PT_WAIT_UNTIL(mlpt, doAndCountdown(cyanEye, &i) <= 0);
 
 	PT_RESTART(mlpt);	
 	PT_END(mlpt);
 }
 
-// Function changeEye switches voltage between LEDs and call protothread functions to apply programmed color
-void changeEye() {
+// Function controlLEDs switches voltage between LEDs anodes and call protothread functions to set cathodes states
+void controlLEDs() {
 	static EYE eye = EYE_LEFT;
 	pinHigh(RED_LED);
 	pinHigh(GREEN_LED);
@@ -228,10 +228,6 @@ int main(void) {
 	// main loop
 	while(1) {
 		_delay_ms(TAKT_TIME); 
-		changeEye();
+		controlLEDs();
 	}
 }
-
-
-
-
