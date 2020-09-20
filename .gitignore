@@ -1,3 +1,5 @@
 Debug
 *.atsuo
+*.dia~
+*.dsn.autosave
 
