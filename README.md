@@ -9,7 +9,7 @@ Design uses five chip pins:
 ![circut](./images/pumpkin_crop.png)
 Note. Design can't use all six chip in/out pins becasue pin PB5 (RESET) is
 defined in the datasheet as a weak pin capable to provide just ~2 mA of load.
-![timing](./images/pumpkin_diagram.pnd)
+![timing](./images/pumpkin_diagram.jpeg)
 Timing diagram provides some help in understanding how design works.
 Program uses Adam Dunkels Protothreads library. 
 The main reason to publish this simple project is to popularize this small 
