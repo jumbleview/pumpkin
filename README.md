@@ -18,7 +18,8 @@ a weak pin capable to provide just ~2 mA of the current, while there is need to 
 Top two rows on diagram shows voltage change on LED anodes. Voltage on pins connected to LED anodes oscillates with frequency ~ 250 Hz.  This voltage oscillation for left eye is an opposite to the oscillation on right eye. When voltage on anode is high corresponding LED may be lighted. When it is  low corresponding LED is dark. That means each LED may be bright during  2 milliseconds interval and is dark during another 2 milliseconds. Because human eye has some inertia, 250 Hz blinking is not noticeable by observer.
 Bottom three rows on diagram shows change of voltage on pins connected to LEDs cathodes when lighting up LEDs in various  colors. Let us look on the first diagram column. It shows the case when left LED is in red color and right LED in green color. Here RED cathodes stays low while left anode is high, GREEN cathode stays low while right anode is high, and BLUE cathode stays low all the time. Other columns on diagram shows combinations of cathode and anode voltage for various colors.
 ## Programming
-This section  contains highlights related to protothreads usage.
+This section  contains highlights related to protothreads usage. I simplified code a little to make it shorter and replaced some defined constant with numbers to be more explicit. 
+
 ### Includes and Definitions
 Here are some basic code which is not specific to protothreads:
 ``` C
@@ -52,9 +53,9 @@ int main(void) {
 	int16_t ri = 0; // function counter: right
 	for(;;) { // main loop
 		LeftEye(&lpt, &li);
-		_delay_ms(TIME_INTERVAL); 
+		_delay_ms(2); 
 		RightEye(&rpt, &ri);
-		_delay_ms(TIME_INTERVAL); 		
+		_delay_ms(2); 		
 	}
 }
 ```
