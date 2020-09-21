@@ -68,9 +68,9 @@ int16_t DoAndCountdown( void (*f)(), int16_t initial, int16_t *counter) {
 ```
 
  Technically speaking usage of such a function is not mandatory but I found it convenient. It has three arguments:
-* Address of function setting LED color (like GreenColor or RedColor etc)
-* Number of how many times this function must be invoked on particular protothread step.
-* Address of reverse counter of this function invocation at particular protothread step.
+* Address of function setting LED color (like GreenColor or RedColor etc.)
+* Number of how many times this function must be invoked at particular protothread stage.
+* Address of reverse counter of this function invocation at particular protothread stage.
 
 Function returns value of reverse counter.
 
@@ -93,19 +93,22 @@ int LeftEye(struct pt* mlpt, int16_t* i) {
 }
 
 ```
-THis function invoked with two arguments:
-* Address of protothread structure. It was initialized by *main* before main loop started.
+Function is invoked with two arguments:
+* Address of protothread structure. That structure was initialized by *main* before main loop started.
 * Address of reverse counter. It was set to 0 by *main*  before main loop started.
 
-After setting voltages to make left LED active it performs protothread segment. Each step presented by protothread macros PT_WAIT_UNTIL. This macros hides next actions:
+After setting voltages to make left LED active function performs protothread segment. Each step of this segment presented by protothread macros PT_WAIT_UNTIL. This macros hides next actions:
 * Invocation of  function *DoAndCountdown*. That sets voltage on LED cathodes in order for particular color . 
 * Returned result compared with 0. If condition is 'false' protothread function immediately returns. That yields control to the main loop. 
 * When protothread is invoked next time it, after execution code before PT_BEGIN jumps directly inside the PT_WAIT macros from which it returned last time.
 * Such a process is repeated until result of *DoAndCountdown* is 0. In that case there is no return out of protothread and program executes next line of the code. In our case it is next PT_WAIT_UNTIL but generally speaking it could be almost any C code.
 * State of *struct* *pt* is reset as soon as control reaches PT_END macros. When function is invoked next time protothread segment starts execute line of the code right after PT_BEGIN.
 
-If you would like to know more about protothreads you may consult Adam Dunkels site: http://dunkels.com/adam/pt/ . Protothread internals revealed
-here: http://dunkels.com/adam/pt/expansion.html
+As far as pumpkin has two eyes, there is one more protothread routine for the right eye. It is similar to described above apart of the fact that it enforces different order of colors. Whole program is less then 200 lines of code and takes less than 20% of Atinny85 code memory. If needed it is possible to utilize in single program several more protothread routines and assign much more complicated logic to them.
+
+## Further Reading
+* If you would like to know more about protothreads I advise you directly consult with Adam Dunkels site: http://dunkels.com/adam/pt/ . 
+* Protothread internals revealed here: http://dunkels.com/adam/pt/expansion.html
 
 
 
