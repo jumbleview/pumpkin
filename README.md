@@ -19,6 +19,27 @@ Top two rows on diagram shows voltage change on LED anodes. Voltage on pins conn
 Bottom three rows on diagram shows change of voltage on pins connected to LEDs cathodes when lighting up LEDs in various  colors. Let us look on the first diagram column. It shows the case when left LED is in red color and right LED in green color. Here RED cathodes stays low while left anode is high, GREEN cathode stays low while right anode is high, and BLUE cathode stays low all the time. Other columns on diagram shows combinations of cathode and anode voltage for various colors.
 ## Programming
 This section  contains highlights related to protothreads usage.
+### Includes and Definitions
+Here are some basic code which is not specific to protothreads:
+``` C
+
+#include <avr/io.h>
+//  CKDIV8 cleared. 8 MHz; if F_CPU   1000000UL // CKDIV8 set. 1 MHz
+#define 	F_CPU   8000000UL
+#include <util/delay.h>
+#include "../pt-1.4/pt.h" // http://dunkels.com/adam/pt/
+#define PinOutHigh(bit) PORTB |= (1 << (bit))
+#define PinOutLow(bit) PORTB &= ~(1 << (bit))
+#define	LEFT_ANOD	DDB3
+#define	RIGHT_ANOD	DDB4
+#define	RED_LED		DDB0
+#define	GREEN_LED	DDB1
+#define	BLUE_LED	DDB2
+
+```
+In addition includes of files coming with Atmel Studio there is include of protothread library header.
+Next there are to macros to manipulate pins and definitions  to give logical names to pin numbers.
+
 ### Main Loop
 ``` C
 int main(void) {
@@ -91,6 +112,18 @@ int LeftEye(struct pt* mlpt, int16_t* i) {
 		PT_WAIT_UNTIL(mlpt, DoAndCountdown(BlueColor, 250, i) == 0);
 	PT_END(mlpt);
 }
+int RightEye(struct pt* mlpt, int16_t* i) {
+	PinOutLow(LEFT_ANOD);
+	PinOutHigh(RIGHT_ANOD);
+	PT_BEGIN(mlpt); 
+		PT_WAIT_UNTIL(mlpt, DoAndCountdown(GreenColor, 250, i) == 0);
+
+		PT_WAIT_UNTIL(mlpt, DoAndCountdown(BlueColor, 250, i) == 0);
+
+		PT_WAIT_UNTIL(mlpt, DoAndCountdown(RedColor, 250, i) == 0);
+	PT_END(mlpt);
+}
+
 
 ```
 Function is invoked with two arguments:
