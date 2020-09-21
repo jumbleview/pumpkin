@@ -15,7 +15,7 @@
  */
 
 #include <avr/io.h>
-//#define 	F_CPU   1000000UL // CKDIV8 set. 1 MHz
+//  CKDIV8 cleared. 8 MHz; if F_CPU   1000000UL // CKDIV8 set. 1 MHz
 #define 	F_CPU   8000000UL // CKDIV8 cleared. 8 MHz
 #include <util/delay.h>
 #include "../pt-1.4/pt.h" // http://dunkels.com/adam/pt/
@@ -44,9 +44,6 @@
 
 // Dark LED  will stay 500 MS  ~ 0.5 Second
 #define DARK_LIMIT TIME_FACTOR(500)
- 
-struct pt lpt; // protothread descriptor: left
-struct pt rpt; // protothread descriptor: right
 
 // Pure color procedures
 void GreenColor() {
@@ -186,10 +183,12 @@ void initialize() {
 
 int main(void) {
 	initialize();
+	struct pt lpt; // protothread descriptor: left
+	struct pt rpt; // protothread descriptor: right
 	PT_INIT(&lpt);
 	PT_INIT(&rpt);
-	int16_t li = 0;
-	int16_t ri = 0;
+	int16_t li = 0; // function counter: left
+	int16_t ri = 0; // function counter: right
 	for(;;) { // main loop
 		LeftEye(&lpt, &li);
 		_delay_ms(TIME_INTERVAL); 
