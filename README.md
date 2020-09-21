@@ -76,7 +76,7 @@ Function returns value of reverse counter.
 
 ### Protothreads routine
 
-And here is core of framework. Protothread routine. For the sake of simplicity I limited example here only to three steps: to change color from RED, to GREEN, and to BLUE.
+And here is core of framework: protothread routine. For the sake of simplicity example limited only to three steps: for color  change from RED, to GREEN, and to BLUE.
 
 ``` C
 
@@ -94,15 +94,15 @@ int LeftEye(struct pt* mlpt, int16_t* i) {
 
 ```
 THis function invoked with two arguments:
-* Address if protothread structure. It was initialized by *main* before main loop started.
+* Address of protothread structure. It was initialized by *main* before main loop started.
 * Address of reverse counter. It was set to 0 by *main*  before main loop started.
 
-After setting voltages to make left LED active it performs protothread steps. Each step of routing presented by protothread macros PT_WAIT_UNTIL. This macros hides next actions:
-* Invoke function *DoAndCountdown*. That sets voltage on LED cathodes in particular color order. 
-* It compare returned result with 0. If condition is 'false' it immediately returns from the function. That yields control to main loop. 
-* When protothread is invoked next time it, after execution code before PT_BEGIN jump inside the PT_WAIT macros from which it returned last time.
-* That process is repeated until result of *DoAndCountdown* returns 0. In that case there is no return out of protothread and program executes next line of the code. In our case it is next PT_WAIT_UNTIL but generally speaking it could be almost any C code.
-* WHen protothread reaches PT_END macros state of *struct* *pt* is reset. When protothread is invoked next time program starts execute line of code right after PT_BEGIN.
+After setting voltages to make left LED active it performs protothread segment. Each step presented by protothread macros PT_WAIT_UNTIL. This macros hides next actions:
+* Invocation of  function *DoAndCountdown*. That sets voltage on LED cathodes in order for particular color . 
+* Returned result compared with 0. If condition is 'false' protothread function immediately returns. That yields control to the main loop. 
+* When protothread is invoked next time it, after execution code before PT_BEGIN jumps directly inside the PT_WAIT macros from which it returned last time.
+* Such a process is repeated until result of *DoAndCountdown* is 0. In that case there is no return out of protothread and program executes next line of the code. In our case it is next PT_WAIT_UNTIL but generally speaking it could be almost any C code.
+* State of *struct* *pt* is reset as soon as control reaches PT_END macros. When function is invoked next time protothread segment starts execute line of the code right after PT_BEGIN.
 
 If you would like to know more about protothreads you may consult Adam Dunkels site: http://dunkels.com/adam/pt/ . Protothread internals revealed
 here: http://dunkels.com/adam/pt/expansion.html
