@@ -67,15 +67,22 @@ Function main after doing some initialization stays in forever loop. In that loo
 ### Auxiliary functions
 Functions to set particular color are straightforward. Here is an example
 ``` C
+
+void RedColor() {
+	PinOutLow(RED_LED);
+	PinOutHigh(GREEN_LED);
+	PinOutHigh(BLUE_LED);
+}
 void GreenColor() {
 	PinOutHigh(RED_LED);
 	PinOutLow(GREEN_LED);
 	PinOutHigh(BLUE_LED);
 }
-
+...
 ```
-There are seven more functions like this: each function per color and it includes case of dark  LED (NoColor).
-One more function is directly invoked by protothread routine.
+There are more functions like this: as many function as number of supported colors (seven) and one more for the dark  LED (NoColor).
+
+Here is function which  is directly invoked by protothread routine.
 ``` C
 
 int16_t DoAndCountdown( void (*f)(), int16_t initial, int16_t *counter) {
